@@ -1388,33 +1388,23 @@ app.get('/license/:uniqueid', backend.checkAuth, async function(req, res) {
     });
 });
 
-app.get('/invoice/:uniqueid', backend.checkAuth, async function(req, res) {
+app.get('/invoice/:uniqueid', async function(req, res) {
     await backend.resetAppLocals(app);
     if(app.locals.sitesettings.maintenance) return res.render('maintenance.ejs');
     if(!req.params.uniqueid) return res.redirect('/404');
     req.params.uniqueid = await utils.sanitize(req.params.uniqueid);
-    con.query(`SELECT * FROM staff WHERE userid="${req.user.id}"`, async (err, row) => {
-        if(err) throw err;
-        let isStaff = false;
-        if(row[0]) isStaff = true;
-        con.query(`SELECT * FROM users WHERE id="${req.user.id}"`, async (err, row) => {
+    let isStaff = false;
+    if(req.isAuthenticated()) {
+        con.query(`SELECT * FROM staff WHERE userid="${req.user.id}"`, async (err, row) => {
             if(err) throw err;
-            let myuser = row[0];
-            con.query(`SELECT * FROM notifications WHERE userid="${req.user.id}"`, async (err, mynotis) => {
-                if(err) throw err;
-                myuser.notifications = mynotis || [];
-                con.query(`SELECT * FROM invoices WHERE uniqueid="${req.params.uniqueid}"`, async (err, row) => {
-                    if(err) throw err;
-                    if(!row[0]) return res.redirect('/404');
-                    let invoice = row[0];
-                    if(isStaff || invoice.userid == req.user.id) {
-                        res.render('invoice.ejs', { user: myuser, loggedIn: true, staff: isStaff, invoice: invoice });
-                    } else {
-                        res.redirect('/404');
-                    };
-                });
-            });
+            if(row[0]) isStaff = true;
         });
+    };
+    con.query(`SELECT * FROM invoices WHERE uniqueid="${req.params.uniqueid}"`, async (err, row) => {
+        if(err) throw err;
+        if(!row[0]) return res.redirect('/404');
+        let invoice = row[0];
+        res.render('invoice.ejs', { staff: isStaff, invoice: invoice });
     });
 });
 
@@ -2251,7 +2241,7 @@ app.post("/backend/checkout/:type", backend.checkAuth, async function (req, res)
     });
 });
 
-app.post("/backend/checkoutinvoice/:type/:invoiceid", backend.checkAuth, async function (req, res) {
+app.post("/backend/checkoutinvoice/:type/:invoiceid", async function (req, res) {
     await backend.resetAppLocals(app);
     await backend.checkoutInvoice(req, res);
 });
@@ -2268,10 +2258,12 @@ app.get('/backend/finishcheckout/:uniqueid/:type/:requestuserid', backend.checkA
     await backend.logToDiscord('💸 Purchase Complete!', `[${req.user.username}](${config.domain}/account/${req.user.id}) has just made a purchase with **${req.params.type}**!`);
 });
 
-app.get('/backend/finishcheckoutinvoice/:uniqueid/:type/:invoiceid', backend.checkAuth, async function(req, res) {
+app.get('/backend/finishcheckoutinvoice/:uniqueid/:type/:invoiceid', async function(req, res) {
     await backend.resetAppLocals(app);
     await backend.completeCheckoutInvoice(req, res);
-    await backend.logToDiscord('💸 Invoice Paid!', `[${req.user.username}](${config.domain}/account/${req.user.id}) has just paid [an invoice](${config.domain}/invoice/${req.params.invoiceid}) with **${req.params.type}**!`);
+    let invoiceUserId = 'Account Unknown (NLI)'; // Not Logged In
+    if(req.isAuthenticated()) invoiceUserId = `[${req.user.username}](${config.domain}/account/${req.user.id})`; // If Logged In, set userId to their account id
+    await backend.logToDiscord('💸 Invoice Paid!', `${invoiceUserId} has just paid [an invoice](${config.domain}/invoice/${req.params.invoiceid}) with **${req.params.type}**!`);
 });
 
 app.get('/backend/finishcheckoutgiftcard/:uniqueid/:type/:giftcardid', backend.checkAuth, async function(req, res) {
@@ -3052,6 +3044,10 @@ app.get('/credits', function(req, res) { res.redirect('https://github.com/itz-hy
 app.get('/creator', function(req, res) { res.redirect('https://github.com/itz-hyperz') });
 app.get('/developer', function(req, res) { res.redirect('https://github.com/itz-hyperz') });
 app.get('/designer', function(req, res) { res.redirect('https://github.com/itz-hyperz') });
+app.get('/backend/licensecheck', backend.checkAuth, async function(req, res) {
+    await backend.resetAppLocals(app);
+    await backend.licenseCheck(req, res);
+});
 
 app.get('/backend/toggledisabled/license/:uniqueid', backend.checkAuth, async function(req, res) {
     await backend.resetAppLocals(app);
