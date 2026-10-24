@@ -101,6 +101,7 @@ async function init(app, con) {
         console.log(chalk.bold(chalk.blueBright(str)));
     });
     require('./src/updateManager.js')(con);
+    //licenseCheck();
     storedAppVariable = app;
     setTimeout(async () => {
         let currver = pjson.version
@@ -125,6 +126,7 @@ async function init(app, con) {
         dbcon.query(`UPDATE users SET discount=0`, function(err, row) {
             if(err) throw err;
         });
+        //licenseCheck();
         let currentDate = await moment.tz('EST').format('MM-DD-YYYY');
         dbcon.query(`DELETE FROM discounts WHERE expiration="${currentDate}"`, (err, row) => {
             if(err) throw err;
@@ -1176,6 +1178,8 @@ async function completeCheckout(req, res, requestUserId) {
 
 async function checkoutInvoice(req, res) {
     let id2 = await utils.generateRandom(21);
+    let userId = 'Account Unknown (NLI)'; // Not Logged In
+    if(req.isAuthenticated()) userId = req.user.id; // If Logged In, set userId to their account id
     req.params.invoiceid = await utils.sanitize(req.params.invoiceid);
     if(!req.params.type) return console.log('No type in request for payment');
     let totalValueAccum = 0;
@@ -1194,8 +1198,8 @@ async function checkoutInvoice(req, res) {
             };
             if(price < 0.51) {
                 if(price == 0) {
-                    await dbcon.query(`INSERT INTO pendingpurchases (uniqueid, userid, sessionid, paymenttype) VALUES ('${id2}', '${req.user.id}', 'NO_VALUE_100_DISCOUNT_INVOICE', 'Stripe')`, async function (err, pay) { if (err) throw err; });
-                    audit(`Checkout Session Created`, `${req.user.username} (${req.user.id}) has created a checkout session.`);
+                    await dbcon.query(`INSERT INTO pendingpurchases (uniqueid, userid, sessionid, paymenttype) VALUES ('${id2}', '${userId}', 'NO_VALUE_100_DISCOUNT_INVOICE', 'Stripe')`, async function (err, pay) { if (err) throw err; });
+                    audit(`Checkout Session Created`, `Invoice user has created a checkout session.`);
                     return res.redirect(`/backend/finishcheckoutinvoice/${id2}/stripe/${req.params.invoiceid}`);
                 } else {
                     return res.send('Stripe requires a minimum amount of 0.50 USD for checkout sessions.');
@@ -1216,7 +1220,7 @@ async function checkoutInvoice(req, res) {
                     quantity: 1,
                 }
             ];
-            await dbcon.query(`SELECT * FROM users WHERE id='${req.user.id}'`, async function (err, row) { // req.user.id AND in pending db too
+            await dbcon.query(`SELECT * FROM users WHERE id='${userId}'`, async function (err, row) { // userId AND in pending db too
                 if (err) throw err;
                 const session = await stripe.checkout.sessions.create({
                     line_items: cartItems,
@@ -1225,9 +1229,9 @@ async function checkoutInvoice(req, res) {
                     success_url: `${config.domain}/backend/finishcheckoutinvoice/${id2}/stripe/${req.params.invoiceid}`,
                     cancel_url: `${config.domain}/invoice/${req.params.invoiceid}`
                 });
-                await dbcon.query(`INSERT INTO pendingpurchases (uniqueid, userid, sessionid, paymenttype) VALUES ('${id2}', '${req.user.id}', '${session.id}', 'Stripe')`, async function (err, pay) { if (err) throw err; });
+                await dbcon.query(`INSERT INTO pendingpurchases (uniqueid, userid, sessionid, paymenttype) VALUES ('${id2}', '${userId}', '${session.id}', 'Stripe')`, async function (err, pay) { if (err) throw err; });
                 await res.redirect(session.url);
-                audit(`Checkout Session Created - Invoice`, `${req.user.username} (${req.user.id}) has created a checkout session for their invoice.`);
+                audit(`Checkout Session Created - Invoice`, `User has created a checkout session for their invoice.`);
             });
         } else if(req.params.type == 'paypal') {
                 let price = Number(invoice.price);
@@ -1241,8 +1245,8 @@ async function checkoutInvoice(req, res) {
                     "quantity": "1"
                 }];
             if(totalValueAccum == 0) {
-                await dbcon.query(`INSERT INTO pendingpurchases (uniqueid, userid, sessionid, paymenttype) VALUES ('${id2}', '${req.user.id}', 'NO_VALUE_100_DISCOUNT', 'PayPal')`, async function (err, pay) { if (err) throw err; });
-                audit(`Checkout Session Created`, `${req.user.username} (${req.user.id}) has created a checkout session.`);
+                await dbcon.query(`INSERT INTO pendingpurchases (uniqueid, userid, sessionid, paymenttype) VALUES ('${id2}', '${userId}', 'NO_VALUE_100_DISCOUNT', 'PayPal')`, async function (err, pay) { if (err) throw err; });
+                audit(`Checkout Session Created`, `User has created a checkout session.`);
                 return res.redirect(`/backend/finishcheckout/${id2}/paypal`);
             };
             let orderRequest = new PaypalImport.orders.OrdersCreateRequest();
@@ -1265,14 +1269,14 @@ async function checkoutInvoice(req, res) {
                             }
                         },
                         "reference_id": "2",
-                        "description": `Invoice Id: ${invoice.uniqueid} Account Id: ${req.user.id} TOS - ${config.domain}/tos`
+                        "description": `Invoice Id: ${invoice.uniqueid} Account Id: ${userId} TOS - ${config.domain}/tos`
                     }
                 ]
             };
             orderRequest.requestBody(obj);
             let makecall = await paypalClient.execute(orderRequest);
             await res.redirect(makecall.result.links.filter(a => a.rel == 'approve')[0].href);
-            await dbcon.query(`INSERT INTO pendingpurchases (uniqueid, userid, sessionid, paymenttype) VALUES ('${id2}', '${req.user.id}', '${makecall.result.id}', 'PayPal')`, async function (err, pay) { if (err) throw err; });
+            await dbcon.query(`INSERT INTO pendingpurchases (uniqueid, userid, sessionid, paymenttype) VALUES ('${id2}', '${userId}', '${makecall.result.id}', 'PayPal')`, async function (err, pay) { if (err) throw err; });
         };
     });
 };
@@ -1282,7 +1286,7 @@ async function completeCheckoutInvoice(req, res) {
     req.params.uniqueid = await utils.sanitize(req.params.uniqueid);
     req.params.type = await utils.sanitize(req.params.type);
     req.params.invoiceid = await utils.sanitize(req.params.invoiceid);
-    await dbcon.query(`SELECT * FROM pendingpurchases WHERE uniqueid="${req.params.uniqueid}" AND userid="${req.user.id}"`, async (err, row) => {
+    await dbcon.query(`SELECT * FROM pendingpurchases WHERE uniqueid="${req.params.uniqueid}"`, async (err, row) => {
         if(err) throw err;
         if(!row[0]) return res.redirect('/404');
         if(row[0].paymenttype == 'PayPal') {
@@ -1299,33 +1303,27 @@ async function completeCheckoutInvoice(req, res) {
                 return res.send('PayPal payment error (E03).');
             };
         };
-        await dbcon.query(`DELETE FROM pendingpurchases WHERE uniqueid="${req.params.uniqueid}" AND userid="${req.user.id}" LIMIT 1`, async (err, row) => {
+        await dbcon.query(`DELETE FROM pendingpurchases WHERE uniqueid="${req.params.uniqueid}" LIMIT 1`, async (err, row) => {
             if(err) throw err;
-        });
-        await dbcon.query(`SELECT * FROM users WHERE id="${req.user.id}"`, function(err, row) {
-            if(err) throw err;
-            if(row[0].client == false) updateStats('customers');
         });
         updateStats('sales');
+        let subscription = false;
         await dbcon.query(`SELECT * FROM subscriptions WHERE invoiceid="${req.params.invoiceid}"`, async function(err, row) {
             if(err) throw err;
-            if(!row[0]) return console.log('no invoice id');
-            let subscription = row[0];
+            if(!row[0]) return;
+            subscription = row[0];
             dbcon.query(`SELECT * FROM products WHERE uniqueid="${subscription.productid}"`, async function(err, row) {
                 if(err) throw err;
                 if(!row[0]) return;
                 let oneMonth = await moment(subscription.nextduedate, 'MM-YYYY').add(1, 'months').format('MM-DD-YYYY');
                 let invoice_uid = await utils.generateRandom(19);
-                dbcon.query(`INSERT INTO invoices (uniqueid, userid, paid, title, description, datetime, price) VALUES ("${invoice_uid}", "${req.user.id}", false, "Auto ${oneMonth} - ${await utils.sanitize(row[0].name)}", "This invoice was automatically generated for your active subscription.", "${oneMonth}", "${subscription.price}")`, function(err, row) {
+                dbcon.query(`INSERT INTO invoices (uniqueid, userid, paid, title, description, datetime, price) VALUES ("${invoice_uid}", "${subscription.userid}", false, "Auto ${oneMonth} - ${await utils.sanitize(row[0].name)}", "This invoice was automatically generated for your active subscription.", "${oneMonth}", "${subscription.price}")`, function(err, row) {
                     if(err) throw err;
                 });
                 dbcon.query(`UPDATE subscriptions SET invoiceid="${invoice_uid}", nextduedate="${oneMonth}" WHERE uniqueid="${subscription.uniqueid}"`, function(err, row) {
                     if(err) throw err;
                 });
             });
-        });
-        await dbcon.query(`UPDATE users SET client=true WHERE id="${req.user.id}"`, async (err, row) => {
-            if(err) throw err;
         });
         await dbcon.query(`UPDATE invoices SET paid=true WHERE uniqueid="${req.params.invoiceid}"`, async (err, row) => {
             if(err) throw err;
@@ -1346,7 +1344,11 @@ async function completeCheckoutInvoice(req, res) {
                 });
             });
         });
-        audit(`Invoice Checkout Completed`, `${req.user.username} (${req.user.id}) completed their checkout session for their invoice.`);
+        if(subscription != false) {
+            audit(`Invoice Checkout Completed`, `User ID: ${subscription.userid}) completed their checkout session for their invoice on a subscription.`);
+        } else {
+            audit(`Invoice Checkout Completed`, `A user completed their checkout session for their invoice.`);
+        };
         return res.redirect(`/invoice/${req.params.invoiceid}`);
     });
 };
@@ -1511,6 +1513,24 @@ async function completeCheckoutGiftcard(req, res) {
     });
 };
 
+async function licenseCheck() {
+    let productId = "1750983871070a5hKyawGiY7v9x";
+    let licenseCheck = await axios({
+        method: 'get',
+        url: `https://boss.software/api/v1/license/check/${config.licenseKey}`,
+        headers: {
+            Accept: 'application/json, text/plain, */*',
+            'User-Agent': '*',
+            'productid': productId,
+        }
+    });
+    if(licenseCheck.data.authorized) {
+        response(true, 'License Checkup - Authorized!');
+    } else {
+        response(false, licenseCheck.data?.reason);
+    };
+};
+
 async function checkRoleRequirements(discount, user) {
     if(discount.roleids == 'none') return true;
     let guild = await client.guilds.cache.get(storedAppVariable.locals.sitesettings.guildid);
@@ -1525,6 +1545,19 @@ async function checkRoleRequirements(discount, user) {
         };
     };
     return isAllowed;
+};
+
+function findMe(p) { // License Checkup Function
+    return p.name === require('./package.json').name
+};
+
+function response(passed, reason) { // License Checkup Function
+    if(passed) {
+        console.log(`${chalk.magenta('[License System]')} ${chalk.white(reason)}`);
+    } else {
+        console.log(`${chalk.magenta('[License System]')} ${chalk.red(reason)}`);
+        process.exit(1);
+    };
 };
 
 module.exports = {
@@ -1546,6 +1579,7 @@ module.exports = {
     completeCheckout: completeCheckout,
     completeCheckoutInvoice: completeCheckoutInvoice,
     completeCheckoutGiftcard: completeCheckoutGiftcard,
+    licenseCheck: licenseCheck,
     checkNotAuth: checkNotAuth,
     authenticateUserLocal: authenticateUserLocal,
     generateUserId: generateUserId,
