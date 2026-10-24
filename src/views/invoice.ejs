@@ -92,7 +92,7 @@
             <hr>
             <h1><%= invoice.title %></h1>
             <p><%= invoice.description %></p>
-            <% if(!invoice.paid && invoice.userid == user.id) { %>
+            <% if(!invoice.paid) { %>
                 <hr>
                 <br>
                 <form action="/backend/checkoutinvoice/stripe/<%= invoice.uniqueid %>" method="post">
@@ -140,9 +140,9 @@
                         <button type="submit" class="btn btn-theme"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
                     </form>
                 </div>
+                <hr>
+                <a href="/account/<%= invoice.userid %>" class="btn btn-theme"><i class="fa-solid fa-user"></i> View Account</a>
             <% }; %>
-            <hr>
-            <a href="/account/<%= invoice.userid %>" class="btn btn-theme"><i class="fa-solid fa-user"></i> View Account</a>
         </div>
         <br>
         <br>
