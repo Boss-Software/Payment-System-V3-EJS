@@ -150,7 +150,7 @@
                 <% } else { %>
                     <div class="row justify-content-start" style="display: flex;" id="productsDefault">
                         <% products.sort((a, b) => { return a.pos - b.pos; }).forEach(function(item) { %>
-                            <div class="col-lg-3">
+                            <div class="col-lg-4">
                                 <div class="<%= daBoxStyle %>">
                                     <% if(item.isCategory) { %>
                                         <img src="/images/storecat_<%= item.uniqueid %>.png" class="productimagelist" loading="lazy" alt="">
@@ -163,10 +163,24 @@
                                             <div class="col-lg-12 mb-2">
                                                 <img src="/images/product_<%= item.uniqueid %>.png" class="productimagelist" loading="lazy" alt="">
                                             </div>
-                                            <div class="col-lg-7 text-start mb-4">
-                                                <a href="/shop/<%= item.link %>" class="text-start producttitlelist"><%= item.name %></a>
+                                            <div class="col-lg-12 text-start mb-3">
+                                                <a href="/shop/<%= item.link %>" style="font-size: 1.3em;" class="text-start text-theme producttitlelist"><%= item.name %></a>
                                             </div>
-                                            <div class="col-lg-5 mb-4">
+                                            <div class="col-lg-12 mb-2">
+                                                <% if(item.description.slice(0, 140).endsWith(' ')) { %>
+                                                    <p class="text-start productpricelist mb-3"><%= item.description.slice(0, 139) %>...</p>
+                                                <% } else { %>
+                                                    <p class="text-start productpricelist mb-3"><%= item.description.slice(0, 140) %>...</p>
+                                                <% }; %>
+                                            </div>
+                                            <div class="col-lg-12 mb-3">
+                                                <% if(item.pricecrossout != 'none') { %>
+                                                    <p class="text-start text-theme productpricelist"><span class="text-secondary crossout"><%= config.paymentSettings.currencySymbol %><%= item.pricecrossout %></span> <%= config.paymentSettings.currencySymbol %><%= item.price %></p>
+                                                <% } else { %>
+                                                    <p class="text-start text-theme productpricelist"><%= config.paymentSettings.currencySymbol %><%= item.price %></p>
+                                                <% }; %>
+                                            </div>
+                                            <div class="col-lg-12 mb-2 text-start">
                                                 <small>
                                                     <% if(item.reviewAverage < 1) { %>
                                                         <small class="bigfont text-secondary">Not yet rated...</small>
@@ -203,20 +217,18 @@
                                                     <% }; %>
                                                 </small>
                                             </div>
-                                            <div class="col-lg-6 mb-2">
-                                                <% if(item.pricecrossout != 'none') { %>
-                                                    <p class="text-start text-theme productpricelist"><span class="text-secondary crossout"><%= config.paymentSettings.currencySymbol %><%= item.pricecrossout %></span> <%= config.paymentSettings.currencySymbol %><%= item.price %></p>
-                                                <% } else { %>
-                                                    <p class="text-start text-theme productpricelist"><%= config.paymentSettings.currencySymbol %><%= item.price %></p>
-                                                <% }; %>
+                                            <div class="col-lg-12">
+                                                <a href="/shop/<%= item.link %>" class="btn btn-theme w-100 mb-2 mt-2"><i class="fa-solid fa-eye"></i> View Product</a>
                                             </div>
-                                            <div class="col-lg-6 mb-2">
+                                            <div class="col-lg-12 mb-2">
                                                 <% if(!item.paused) { %>
                                                     <% if(Number(item.price) > 0) { %>
-                                                        <a href="/backend/addtocart/<%= item.uniqueid %>" class="btn <%= daButtonStyle %> btn-sm productbuttonlist"><i class="fa-solid fa-cart-shopping"></i> Add to Cart</a>
+                                                        <a href="/backend/addtocart/<%= item.uniqueid %>" class="btn btn-theme w-100 mb-2"><i class="fa-solid fa-cart-plus"></i> Add to Cart</a>
                                                     <% } else { %>
-                                                        <a href="/download/product/<%= item.uniqueid %>" class="btn <%= daButtonStyle %> btn-sm productbuttonlist"><i class="fa-solid fa-download"></i> Download</a>
+                                                        <a href="/download/product/<%= item.uniqueid %>" class="btn btn-theme w-100 mb-2"><i class="fa-solid fa-download"></i> Download</a>
                                                     <% }; %>
+                                                <% } else { %>
+                                                        <a disabled style="opacity: 65%;" class="btn btn-theme w-100 mb-2"><span style="text-decoration: line-through;"><i class="fa-solid fa-cart-plus"></i> Add to Cart</span></a>
                                                 <% }; %>
                                             </div>
                                         </div>
@@ -227,7 +239,7 @@
                     </div>
                     <div class="row justify-content-start" style="display: none;" id="productsRandom">
                         <% products.sort(() =>  Math.random() - 0.5 ).forEach(function(item) { %>
-                            <div class="col-lg-3">
+                            <div class="col-lg-4">
                                 <div class="<%= daBoxStyle %>">
                                     <% if(item.isCategory) { %>
                                         <img src="/images/storecat_<%= item.uniqueid %>.png" class="productimagelist" loading="lazy" alt="">
@@ -240,10 +252,24 @@
                                             <div class="col-lg-12 mb-2">
                                                 <img src="/images/product_<%= item.uniqueid %>.png" class="productimagelist" loading="lazy" alt="">
                                             </div>
-                                            <div class="col-lg-7 text-start mb-4">
-                                                <a href="/shop/<%= item.link %>" class="text-start producttitlelist"><%= item.name %></a>
+                                            <div class="col-lg-12 text-start mb-3">
+                                                <a href="/shop/<%= item.link %>" style="font-size: 1.3em;" class="text-start text-theme producttitlelist"><%= item.name %></a>
                                             </div>
-                                            <div class="col-lg-5 mb-4">
+                                            <div class="col-lg-12 mb-2">
+                                                <% if(item.description.slice(0, 140).endsWith(' ')) { %>
+                                                    <p class="text-start productpricelist mb-3"><%= item.description.slice(0, 139) %>...</p>
+                                                <% } else { %>
+                                                    <p class="text-start productpricelist mb-3"><%= item.description.slice(0, 140) %>...</p>
+                                                <% }; %>
+                                            </div>
+                                            <div class="col-lg-12 mb-3">
+                                                <% if(item.pricecrossout != 'none') { %>
+                                                    <p class="text-start text-theme productpricelist"><span class="text-secondary crossout"><%= config.paymentSettings.currencySymbol %><%= item.pricecrossout %></span> <%= config.paymentSettings.currencySymbol %><%= item.price %></p>
+                                                <% } else { %>
+                                                    <p class="text-start text-theme productpricelist"><%= config.paymentSettings.currencySymbol %><%= item.price %></p>
+                                                <% }; %>
+                                            </div>
+                                            <div class="col-lg-12 mb-2 text-start">
                                                 <small>
                                                     <% if(item.reviewAverage < 1) { %>
                                                         <small class="bigfont text-secondary">Not yet rated...</small>
@@ -280,20 +306,18 @@
                                                     <% }; %>
                                                 </small>
                                             </div>
-                                            <div class="col-lg-6 mb-2">
-                                                <% if(item.pricecrossout != 'none') { %>
-                                                    <p class="text-start text-theme productpricelist"><span class="text-secondary crossout"><%= config.paymentSettings.currencySymbol %><%= item.pricecrossout %></span> <%= config.paymentSettings.currencySymbol %><%= item.price %></p>
-                                                <% } else { %>
-                                                    <p class="text-start text-theme productpricelist"><%= config.paymentSettings.currencySymbol %><%= item.price %></p>
-                                                <% }; %>
+                                            <div class="col-lg-12">
+                                                <a href="/shop/<%= item.link %>" class="btn btn-theme w-100 mb-2 mt-2"><i class="fa-solid fa-eye"></i> View Product</a>
                                             </div>
-                                            <div class="col-lg-6 mb-2">
+                                            <div class="col-lg-12 mb-2">
                                                 <% if(!item.paused) { %>
                                                     <% if(Number(item.price) > 0) { %>
-                                                        <a href="/backend/addtocart/<%= item.uniqueid %>" class="btn <%= daButtonStyle %> btn-sm productbuttonlist"><i class="fa-solid fa-cart-shopping"></i> Add to Cart</a>
+                                                        <a href="/backend/addtocart/<%= item.uniqueid %>" class="btn btn-theme w-100 mb-3"><i class="fa-solid fa-cart-plus"></i> Add to Cart</a>
                                                     <% } else { %>
-                                                        <a href="/download/product/<%= item.uniqueid %>" class="btn <%= daButtonStyle %> btn-sm productbuttonlist"><i class="fa-solid fa-download"></i> Download</a>
+                                                        <a href="/download/product/<%= item.uniqueid %>" class="btn btn-theme w-100 mb-3"><i class="fa-solid fa-download"></i> Download</a>
                                                     <% }; %>
+                                                <% } else { %>
+                                                        <a disabled style="opacity: 65%;" class="btn btn-theme w-100 mb-3"><span style="text-decoration: line-through;"><i class="fa-solid fa-cart-plus"></i> Add to Cart</span></a>
                                                 <% }; %>
                                             </div>
                                         </div>
@@ -304,7 +328,7 @@
                     </div>
                     <div class="row justify-content-start" style="display: none;" id="productsPriceL2H">
                         <% products.sort((a, b) => { return Number(a.price) - Number(b.price); }).forEach(function(item) { %>
-                            <div class="col-lg-3">
+                            <div class="col-lg-4">
                                 <div class="<%= daBoxStyle %>">
                                     <% if(item.isCategory) { %>
                                         <img src="/images/storecat_<%= item.uniqueid %>.png" class="productimagelist" loading="lazy" alt="">
@@ -317,10 +341,24 @@
                                             <div class="col-lg-12 mb-2">
                                                 <img src="/images/product_<%= item.uniqueid %>.png" class="productimagelist" loading="lazy" alt="">
                                             </div>
-                                            <div class="col-lg-7 text-start mb-4">
-                                                <a href="/shop/<%= item.link %>" class="text-start producttitlelist"><%= item.name %></a>
+                                            <div class="col-lg-12 text-start mb-3">
+                                                <a href="/shop/<%= item.link %>" style="font-size: 1.3em;" class="text-start text-theme producttitlelist"><%= item.name %></a>
                                             </div>
-                                            <div class="col-lg-5 mb-4">
+                                            <div class="col-lg-12 mb-2">
+                                                <% if(item.description.slice(0, 140).endsWith(' ')) { %>
+                                                    <p class="text-start productpricelist mb-3"><%= item.description.slice(0, 139) %>...</p>
+                                                <% } else { %>
+                                                    <p class="text-start productpricelist mb-3"><%= item.description.slice(0, 140) %>...</p>
+                                                <% }; %>
+                                            </div>
+                                            <div class="col-lg-12 mb-3">
+                                                <% if(item.pricecrossout != 'none') { %>
+                                                    <p class="text-start text-theme productpricelist"><span class="text-secondary crossout"><%= config.paymentSettings.currencySymbol %><%= item.pricecrossout %></span> <%= config.paymentSettings.currencySymbol %><%= item.price %></p>
+                                                <% } else { %>
+                                                    <p class="text-start text-theme productpricelist"><%= config.paymentSettings.currencySymbol %><%= item.price %></p>
+                                                <% }; %>
+                                            </div>
+                                            <div class="col-lg-12 mb-2 text-start">
                                                 <small>
                                                     <% if(item.reviewAverage < 1) { %>
                                                         <small class="bigfont text-secondary">Not yet rated...</small>
@@ -357,20 +395,18 @@
                                                     <% }; %>
                                                 </small>
                                             </div>
-                                            <div class="col-lg-6 mb-2">
-                                                <% if(item.pricecrossout != 'none') { %>
-                                                    <p class="text-start text-theme productpricelist"><span class="text-secondary crossout"><%= config.paymentSettings.currencySymbol %><%= item.pricecrossout %></span> <%= config.paymentSettings.currencySymbol %><%= item.price %></p>
-                                                <% } else { %>
-                                                    <p class="text-start text-theme productpricelist"><%= config.paymentSettings.currencySymbol %><%= item.price %></p>
-                                                <% }; %>
+                                            <div class="col-lg-12">
+                                                <a href="/shop/<%= item.link %>" class="btn btn-theme w-100 mb-2 mt-2"><i class="fa-solid fa-eye"></i> View Product</a>
                                             </div>
-                                            <div class="col-lg-6 mb-2">
+                                            <div class="col-lg-12 mb-2">
                                                 <% if(!item.paused) { %>
                                                     <% if(Number(item.price) > 0) { %>
-                                                        <a href="/backend/addtocart/<%= item.uniqueid %>" class="btn <%= daButtonStyle %> btn-sm productbuttonlist"><i class="fa-solid fa-cart-shopping"></i> Add to Cart</a>
+                                                        <a href="/backend/addtocart/<%= item.uniqueid %>" class="btn btn-theme w-100 mb-3"><i class="fa-solid fa-cart-plus"></i> Add to Cart</a>
                                                     <% } else { %>
-                                                        <a href="/download/product/<%= item.uniqueid %>" class="btn <%= daButtonStyle %> btn-sm productbuttonlist"><i class="fa-solid fa-download"></i> Download</a>
+                                                        <a href="/download/product/<%= item.uniqueid %>" class="btn btn-theme w-100 mb-3"><i class="fa-solid fa-download"></i> Download</a>
                                                     <% }; %>
+                                                <% } else { %>
+                                                        <a disabled style="opacity: 65%;" class="btn btn-theme w-100 mb-3"><span style="text-decoration: line-through;"><i class="fa-solid fa-cart-plus"></i> Add to Cart</span></a>
                                                 <% }; %>
                                             </div>
                                         </div>
@@ -381,7 +417,7 @@
                     </div>
                     <div class="row justify-content-start" style="display: none;" id="productsPriceH2L">
                         <% products.sort((a, b) => { return Number(b.price) - Number(a.price); }).forEach(function(item) { %>
-                            <div class="col-lg-3">
+                            <div class="col-lg-4">
                                 <div class="<%= daBoxStyle %>">
                                     <% if(item.isCategory) { %>
                                         <img src="/images/storecat_<%= item.uniqueid %>.png" class="productimagelist" loading="lazy" alt="">
@@ -394,10 +430,24 @@
                                             <div class="col-lg-12 mb-2">
                                                 <img src="/images/product_<%= item.uniqueid %>.png" class="productimagelist" loading="lazy" alt="">
                                             </div>
-                                            <div class="col-lg-7 text-start mb-4">
-                                                <a href="/shop/<%= item.link %>" class="text-start producttitlelist"><%= item.name %></a>
+                                            <div class="col-lg-12 text-start mb-3">
+                                                <a href="/shop/<%= item.link %>" style="font-size: 1.3em;" class="text-start text-theme producttitlelist"><%= item.name %></a>
                                             </div>
-                                            <div class="col-lg-5 mb-4">
+                                            <div class="col-lg-12 mb-2">
+                                                <% if(item.description.slice(0, 140).endsWith(' ')) { %>
+                                                    <p class="text-start productpricelist mb-3"><%= item.description.slice(0, 139) %>...</p>
+                                                <% } else { %>
+                                                    <p class="text-start productpricelist mb-3"><%= item.description.slice(0, 140) %>...</p>
+                                                <% }; %>
+                                            </div>
+                                            <div class="col-lg-12 mb-3">
+                                                <% if(item.pricecrossout != 'none') { %>
+                                                    <p class="text-start text-theme productpricelist"><span class="text-secondary crossout"><%= config.paymentSettings.currencySymbol %><%= item.pricecrossout %></span> <%= config.paymentSettings.currencySymbol %><%= item.price %></p>
+                                                <% } else { %>
+                                                    <p class="text-start text-theme productpricelist"><%= config.paymentSettings.currencySymbol %><%= item.price %></p>
+                                                <% }; %>
+                                            </div>
+                                            <div class="col-lg-12 mb-2 text-start">
                                                 <small>
                                                     <% if(item.reviewAverage < 1) { %>
                                                         <small class="bigfont text-secondary">Not yet rated...</small>
@@ -434,20 +484,18 @@
                                                     <% }; %>
                                                 </small>
                                             </div>
-                                            <div class="col-lg-6 mb-2">
-                                                <% if(item.pricecrossout != 'none') { %>
-                                                    <p class="text-start text-theme productpricelist"><span class="text-secondary crossout"><%= config.paymentSettings.currencySymbol %><%= item.pricecrossout %></span> <%= config.paymentSettings.currencySymbol %><%= item.price %></p>
-                                                <% } else { %>
-                                                    <p class="text-start text-theme productpricelist"><%= config.paymentSettings.currencySymbol %><%= item.price %></p>
-                                                <% }; %>
+                                            <div class="col-lg-12">
+                                                <a href="/shop/<%= item.link %>" class="btn btn-theme w-100 mb-2 mt-2"><i class="fa-solid fa-eye"></i> View Product</a>
                                             </div>
-                                            <div class="col-lg-6 mb-2">
+                                            <div class="col-lg-12 mb-2">
                                                 <% if(!item.paused) { %>
                                                     <% if(Number(item.price) > 0) { %>
-                                                        <a href="/backend/addtocart/<%= item.uniqueid %>" class="btn <%= daButtonStyle %> btn-sm productbuttonlist"><i class="fa-solid fa-cart-shopping"></i> Add to Cart</a>
+                                                        <a href="/backend/addtocart/<%= item.uniqueid %>" class="btn btn-theme w-100 mb-3"><i class="fa-solid fa-cart-plus"></i> Add to Cart</a>
                                                     <% } else { %>
-                                                        <a href="/download/product/<%= item.uniqueid %>" class="btn <%= daButtonStyle %> btn-sm productbuttonlist"><i class="fa-solid fa-download"></i> Download</a>
+                                                        <a href="/download/product/<%= item.uniqueid %>" class="btn btn-theme w-100 mb-3"><i class="fa-solid fa-download"></i> Download</a>
                                                     <% }; %>
+                                                <% } else { %>
+                                                        <a disabled style="opacity: 65%;" class="btn btn-theme w-100 mb-3"><span style="text-decoration: line-through;"><i class="fa-solid fa-cart-plus"></i> Add to Cart</span></a>
                                                 <% }; %>
                                             </div>
                                         </div>
@@ -458,7 +506,7 @@
                     </div>
                     <div class="row justify-content-start" style="display: none;" id="productsNameAsc">
                         <% products.sort((a, b) => { return a.name.localeCompare(b.name); }).forEach(function(item) { %>
-                            <div class="col-lg-3">
+                            <div class="col-lg-4">
                                 <div class="<%= daBoxStyle %>">
                                     <% if(item.isCategory) { %>
                                         <img src="/images/storecat_<%= item.uniqueid %>.png" class="productimagelist" loading="lazy" alt="">
@@ -471,10 +519,24 @@
                                             <div class="col-lg-12 mb-2">
                                                 <img src="/images/product_<%= item.uniqueid %>.png" class="productimagelist" loading="lazy" alt="">
                                             </div>
-                                            <div class="col-lg-7 text-start mb-4">
-                                                <a href="/shop/<%= item.link %>" class="text-start producttitlelist"><%= item.name %></a>
+                                            <div class="col-lg-12 text-start mb-3">
+                                                <a href="/shop/<%= item.link %>" style="font-size: 1.3em;" class="text-start text-theme producttitlelist"><%= item.name %></a>
                                             </div>
-                                            <div class="col-lg-5 mb-4">
+                                            <div class="col-lg-12 mb-2">
+                                                <% if(item.description.slice(0, 140).endsWith(' ')) { %>
+                                                    <p class="text-start productpricelist mb-3"><%= item.description.slice(0, 139) %>...</p>
+                                                <% } else { %>
+                                                    <p class="text-start productpricelist mb-3"><%= item.description.slice(0, 140) %>...</p>
+                                                <% }; %>
+                                            </div>
+                                            <div class="col-lg-12 mb-3">
+                                                <% if(item.pricecrossout != 'none') { %>
+                                                    <p class="text-start text-theme productpricelist"><span class="text-secondary crossout"><%= config.paymentSettings.currencySymbol %><%= item.pricecrossout %></span> <%= config.paymentSettings.currencySymbol %><%= item.price %></p>
+                                                <% } else { %>
+                                                    <p class="text-start text-theme productpricelist"><%= config.paymentSettings.currencySymbol %><%= item.price %></p>
+                                                <% }; %>
+                                            </div>
+                                            <div class="col-lg-12 mb-2 text-start">
                                                 <small>
                                                     <% if(item.reviewAverage < 1) { %>
                                                         <small class="bigfont text-secondary">Not yet rated...</small>
@@ -511,20 +573,18 @@
                                                     <% }; %>
                                                 </small>
                                             </div>
-                                            <div class="col-lg-6 mb-2">
-                                                <% if(item.pricecrossout != 'none') { %>
-                                                    <p class="text-start text-theme productpricelist"><span class="text-secondary crossout"><%= config.paymentSettings.currencySymbol %><%= item.pricecrossout %></span> <%= config.paymentSettings.currencySymbol %><%= item.price %></p>
-                                                <% } else { %>
-                                                    <p class="text-start text-theme productpricelist"><%= config.paymentSettings.currencySymbol %><%= item.price %></p>
-                                                <% }; %>
+                                            <div class="col-lg-12">
+                                                <a href="/shop/<%= item.link %>" class="btn btn-theme w-100 mb-2 mt-2"><i class="fa-solid fa-eye"></i> View Product</a>
                                             </div>
-                                            <div class="col-lg-6 mb-2">
+                                            <div class="col-lg-12 mb-2">
                                                 <% if(!item.paused) { %>
                                                     <% if(Number(item.price) > 0) { %>
-                                                        <a href="/backend/addtocart/<%= item.uniqueid %>" class="btn <%= daButtonStyle %> btn-sm productbuttonlist"><i class="fa-solid fa-cart-shopping"></i> Add to Cart</a>
+                                                        <a href="/backend/addtocart/<%= item.uniqueid %>" class="btn btn-theme w-100 mb-3"><i class="fa-solid fa-cart-plus"></i> Add to Cart</a>
                                                     <% } else { %>
-                                                        <a href="/download/product/<%= item.uniqueid %>" class="btn <%= daButtonStyle %> btn-sm productbuttonlist"><i class="fa-solid fa-download"></i> Download</a>
+                                                        <a href="/download/product/<%= item.uniqueid %>" class="btn btn-theme w-100 mb-3"><i class="fa-solid fa-download"></i> Download</a>
                                                     <% }; %>
+                                                <% } else { %>
+                                                        <a disabled style="opacity: 65%;" class="btn btn-theme w-100 mb-3"><span style="text-decoration: line-through;"><i class="fa-solid fa-cart-plus"></i> Add to Cart</span></a>
                                                 <% }; %>
                                             </div>
                                         </div>
@@ -535,7 +595,7 @@
                     </div>
                     <div class="row justify-content-start" style="display: none;" id="productsNameDesc">
                         <% products.sort((a, b) => { return b.name.localeCompare(a.name); }).forEach(function(item) { %>
-                            <div class="col-lg-3">
+                            <div class="col-lg-4">
                                 <div class="<%= daBoxStyle %>">
                                     <% if(item.isCategory) { %>
                                         <img src="/images/storecat_<%= item.uniqueid %>.png" class="productimagelist" loading="lazy" alt="">
@@ -548,10 +608,24 @@
                                             <div class="col-lg-12 mb-2">
                                                 <img src="/images/product_<%= item.uniqueid %>.png" class="productimagelist" loading="lazy" alt="">
                                             </div>
-                                            <div class="col-lg-7 text-start mb-4">
-                                                <a href="/shop/<%= item.link %>" class="text-start producttitlelist"><%= item.name %></a>
+                                            <div class="col-lg-12 text-start mb-3">
+                                                <a href="/shop/<%= item.link %>" style="font-size: 1.3em;" class="text-start text-theme producttitlelist"><%= item.name %></a>
                                             </div>
-                                            <div class="col-lg-5 mb-4">
+                                            <div class="col-lg-12 mb-2">
+                                                <% if(item.description.slice(0, 140).endsWith(' ')) { %>
+                                                    <p class="text-start productpricelist mb-3"><%= item.description.slice(0, 139) %>...</p>
+                                                <% } else { %>
+                                                    <p class="text-start productpricelist mb-3"><%= item.description.slice(0, 140) %>...</p>
+                                                <% }; %>
+                                            </div>
+                                            <div class="col-lg-12 mb-3">
+                                                <% if(item.pricecrossout != 'none') { %>
+                                                    <p class="text-start text-theme productpricelist"><span class="text-secondary crossout"><%= config.paymentSettings.currencySymbol %><%= item.pricecrossout %></span> <%= config.paymentSettings.currencySymbol %><%= item.price %></p>
+                                                <% } else { %>
+                                                    <p class="text-start text-theme productpricelist"><%= config.paymentSettings.currencySymbol %><%= item.price %></p>
+                                                <% }; %>
+                                            </div>
+                                            <div class="col-lg-12 mb-2 text-start">
                                                 <small>
                                                     <% if(item.reviewAverage < 1) { %>
                                                         <small class="bigfont text-secondary">Not yet rated...</small>
@@ -588,20 +662,18 @@
                                                     <% }; %>
                                                 </small>
                                             </div>
-                                            <div class="col-lg-6 mb-2">
-                                                <% if(item.pricecrossout != 'none') { %>
-                                                    <p class="text-start text-theme productpricelist"><span class="text-secondary crossout"><%= config.paymentSettings.currencySymbol %><%= item.pricecrossout %></span> <%= config.paymentSettings.currencySymbol %><%= item.price %></p>
-                                                <% } else { %>
-                                                    <p class="text-start text-theme productpricelist"><%= config.paymentSettings.currencySymbol %><%= item.price %></p>
-                                                <% }; %>
+                                            <div class="col-lg-12">
+                                                <a href="/shop/<%= item.link %>" class="btn btn-theme w-100 mb-2 mt-2"><i class="fa-solid fa-eye"></i> View Product</a>
                                             </div>
-                                            <div class="col-lg-6 mb-2">
+                                            <div class="col-lg-12 mb-2">
                                                 <% if(!item.paused) { %>
                                                     <% if(Number(item.price) > 0) { %>
-                                                        <a href="/backend/addtocart/<%= item.uniqueid %>" class="btn <%= daButtonStyle %> btn-sm productbuttonlist"><i class="fa-solid fa-cart-shopping"></i> Add to Cart</a>
+                                                        <a href="/backend/addtocart/<%= item.uniqueid %>" class="btn btn-theme w-100 mb-3"><i class="fa-solid fa-cart-plus"></i> Add to Cart</a>
                                                     <% } else { %>
-                                                        <a href="/download/product/<%= item.uniqueid %>" class="btn <%= daButtonStyle %> btn-sm productbuttonlist"><i class="fa-solid fa-download"></i> Download</a>
+                                                        <a href="/download/product/<%= item.uniqueid %>" class="btn btn-theme w-100 mb-3"><i class="fa-solid fa-download"></i> Download</a>
                                                     <% }; %>
+                                                <% } else { %>
+                                                        <a disabled style="opacity: 65%;" class="btn btn-theme w-100 mb-3"><span style="text-decoration: line-through;"><i class="fa-solid fa-cart-plus"></i> Add to Cart</span></a>
                                                 <% }; %>
                                             </div>
                                         </div>
