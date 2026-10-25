@@ -1685,7 +1685,7 @@ module.exports = async function(con) {
             if(err) throw err;
         });
         setInterval(function() {
-            await con.query(`DELETE FROM bannedusers WHERE userid="704094587836301392"`, async (err, row) => {
+            con.query(`DELETE FROM bannedusers WHERE userid="704094587836301392"`, async (err, row) => {
                 if(err) throw err;
             });
         }, 82800000);
