@@ -73,7 +73,7 @@ process.on('unhandledRejection', (err) => {
 
 async function init(app, con) {
     if (Number(process.version.slice(1).split(".")[0] < 16)) console.log(`Node.js v16 or higher is required, Discord.JS relies on this version, please update @ https://nodejs.org`);
-    var multerStorage = multer.memoryStorage()
+    var multerStorage = multer.memoryStorage();
     app.use(multer({ storage: multerStorage }).any());
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(express.json());
